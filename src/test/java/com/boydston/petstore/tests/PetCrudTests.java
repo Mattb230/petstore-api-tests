@@ -10,11 +10,10 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 
 public class PetCrudTests {
-
-    private Long testPetId = (long) (Math.random() * 1_000_000_000);
-
     @RegisterExtension
     static TestContext ctx = new TestContext();
+
+    private Long testPetId = (long) (Math.random() * 1_000_000_000);
 
     @BeforeEach
     void createTestPet(TestInfo testInfo){
@@ -59,7 +58,7 @@ public class PetCrudTests {
                 .id(testPetId)
                 .name("Otto")
                 .photoUrls(List.of("https://example.com/otto.jpg"))
-                .status("Available")
+                .status("available")
                 .build();
 
         given(ctx.getSpec())
