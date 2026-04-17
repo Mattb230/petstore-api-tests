@@ -8,6 +8,9 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 public class PetCrudTests {
     @RegisterExtension
@@ -82,5 +85,42 @@ public class PetCrudTests {
         } catch (Exception e) {
             System.out.println("Cleanup DELETE failed for petId " + newPetId + ": " + e.getMessage());
         }
+    }
+
+    @Test
+    void shouldReturnValidPetSchemaWhenGettingExistingPet() {
+        given(ctx.getSpec())
+                .when()
+                .get("/pet/" + testPetId)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/pet-schema.json"));
+    }
+
+    @Test
+    void shouldReturnCorrectPetDataWhenGettingExistingPet(){
+        Pet returned = given(ctx.getSpec())
+                .when()
+                .get("/pet/" + testPetId)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(Pet.class);
+
+        assertThat(returned.getId(), equalTo(testPetId));
+        assertThat(returned.getName(), equalTo("Otto"));
+        assertThat(returned.getStatus(), equalTo("available"));
+    }
+
+    @Test
+    @Tag(SKIP_SETUP)
+    void shouldReturn404WhenGettingNonExistentPet() {
+        long nonExistentId = 999999999999L;
+
+        given(ctx.getSpec())
+                .when()
+                .get("/pet/" + nonExistentId)
+                .then()
+                .statusCode(404);
     }
 }
