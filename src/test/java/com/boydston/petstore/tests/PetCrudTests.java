@@ -14,10 +14,11 @@ public class PetCrudTests {
     static TestContext ctx = new TestContext();
 
     private Long testPetId = (long) (Math.random() * 1_000_000_000);
+    static final String SKIP_SETUP = "skipSetup";
 
     @BeforeEach
     void createTestPet(TestInfo testInfo){
-        if (testInfo.getTags().contains("skipSetup")) return;
+        if (testInfo.getTags().contains(SKIP_SETUP)) return;
         Pet pet = Pet.builder()
                 .id(testPetId)
                 .name("Otto")
@@ -34,7 +35,8 @@ public class PetCrudTests {
     }
 
     @AfterEach
-    void deleteTestPet(){
+    void deleteTestPet(TestInfo testInfo){
+        if (testInfo.getTags().contains(SKIP_SETUP)) return;
         given(ctx.getSpec())
                 .when()
                     .delete("/pet/" + testPetId)
@@ -52,10 +54,12 @@ public class PetCrudTests {
     }
 
     @Test
-    @Tag("skipSetup")
+    @Tag(SKIP_SETUP)
     void shouldReturn200WhenPostingNewPet() {
+        Long newPetId = (long) (Math.random() * 1_000_000_000);
+
         Pet pet = Pet.builder()
-                .id(testPetId)
+                .id(newPetId)
                 .name("Otto")
                 .photoUrls(List.of("https://example.com/otto.jpg"))
                 .status("available")
@@ -67,5 +71,16 @@ public class PetCrudTests {
                     .post("/pet")
                 .then()
                     .statusCode(200);
+
+        // cleanup
+        try {
+            given(ctx.getSpec())
+                    .when()
+                    .delete("/pet/" + newPetId)
+                    .then()
+                    .statusCode(200);
+        } catch (Exception e) {
+            System.out.println("Cleanup DELETE failed for petId " + newPetId + ": " + e.getMessage());
+        }
     }
 }
