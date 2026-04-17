@@ -48,6 +48,7 @@ public class PetCrudTests {
     }
 
     @Test
+    @Tag("smoke")
     void shouldReturn200WhenGettingExistingPet() {
         given(ctx.getSpec())
                 .when()
@@ -114,6 +115,7 @@ public class PetCrudTests {
 
     @Test
     @Tag(SKIP_SETUP)
+    @Tag("smoke")
     void shouldReturn404WhenGettingNonExistentPet() {
         long nonExistentId = 999999999999L;
 
@@ -122,5 +124,24 @@ public class PetCrudTests {
                 .get("/pet/" + nonExistentId)
                 .then()
                 .statusCode(404);
+    }
+
+    @Test
+    void shouldReturn200WhenUpdatingExistingPet() {
+        Pet updated = Pet.builder()
+                .id(testPetId)
+                .name("Otto Updated")
+                .photoUrls(List.of("https://example.com/otto-updated.jpg"))
+                .status("pending")
+                .build();
+
+        given(ctx.getSpec())
+                .body(updated)
+                .when()
+                .put("/pet")
+                .then()
+                .statusCode(200)
+                .body("name", equalTo("Otto Updated"))
+                .body("status", equalTo("pending"));
     }
 }
