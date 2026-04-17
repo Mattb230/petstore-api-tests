@@ -39,6 +39,10 @@ public class ConfigManager {
     }
 
     public String getApiKey() {
+        String envKey = System.getenv("PETSTORE_API_KEY");
+        if (envKey != null && !envKey.isBlank()) {
+            return envKey.trim();
+        }
         return getRequired("api.key");
     }
 

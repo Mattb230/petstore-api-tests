@@ -40,3 +40,6 @@ build/
 ### Allure ###
 allure-results/
 allure-report/
+
+### Secrets ###
+src/test/resources/config.properties

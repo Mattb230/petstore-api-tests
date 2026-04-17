@@ -1,0 +1,6 @@
+# PetStore API Test Configuration
+# Copy this file to config.properties and fill in your values.
+# config.properties is gitignored and should never be committed.
+base.url=https://petstore.swagger.io/v2
+api.key=YOUR_API_KEY_HERE
+request.timeout.seconds=10
