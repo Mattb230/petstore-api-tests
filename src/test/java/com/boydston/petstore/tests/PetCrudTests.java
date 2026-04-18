@@ -80,9 +80,9 @@ public class PetCrudTests {
         try {
             given(ctx.getSpec())
                     .when()
-                    .delete("/pet/" + newPetId)
+                        .delete("/pet/" + newPetId)
                     .then()
-                    .statusCode(200);
+                        .statusCode(200);
         } catch (Exception e) {
             System.out.println("Cleanup DELETE failed for petId " + newPetId + ": " + e.getMessage());
         }
@@ -92,10 +92,10 @@ public class PetCrudTests {
     void shouldReturnValidPetSchemaWhenGettingExistingPet() {
         given(ctx.getSpec())
                 .when()
-                .get("/pet/" + testPetId)
+                    .get("/pet/" + testPetId)
                 .then()
-                .statusCode(200)
-                .body(matchesJsonSchemaInClasspath("schemas/pet-schema.json"));
+                    .statusCode(200)
+                    .body(matchesJsonSchemaInClasspath("schemas/pet-schema.json"));
     }
 
     @Test
@@ -104,9 +104,9 @@ public class PetCrudTests {
                 .when()
                 .get("/pet/" + testPetId)
                 .then()
-                .statusCode(200)
-                .extract()
-                .as(Pet.class);
+                    .statusCode(200)
+                    .extract()
+                    .as(Pet.class);
 
         assertThat(returned.getId(), equalTo(testPetId));
         assertThat(returned.getName(), equalTo("Otto"));
@@ -121,9 +121,9 @@ public class PetCrudTests {
 
         given(ctx.getSpec())
                 .when()
-                .get("/pet/" + nonExistentId)
+                    .get("/pet/" + nonExistentId)
                 .then()
-                .statusCode(404);
+                    .statusCode(404);
     }
 
     @Test
@@ -135,13 +135,48 @@ public class PetCrudTests {
                 .status("pending")
                 .build();
 
-        given(ctx.getSpec())
+        Pet returned = given(ctx.getSpec())
                 .body(updated)
                 .when()
-                .put("/pet")
+                    .put("/pet")
                 .then()
-                .statusCode(200)
-                .body("name", equalTo("Otto Updated"))
-                .body("status", equalTo("pending"));
+                    .statusCode(200)
+                    .extract()
+                    .as(Pet.class);
+
+        assertThat(returned.getName(), equalTo("Otto Updated"));
+        assertThat(returned.getStatus(), equalTo("pending"));
+    }
+
+    @Test
+    @Tag(SKIP_SETUP)
+    void shouldReturn404AfterDeletingPet(){
+        Long newPetId = (long) (Math.random() * 1_000_000_000);
+
+        Pet pet = Pet.builder()
+                .id(newPetId)
+                .name("Otto")
+                .photoUrls(List.of("https://example.com/otto.jpg"))
+                .status("available")
+                .build();
+
+        given(ctx.getSpec())
+                .body(pet)
+                .when()
+                    .post("/pet")
+                .then()
+                    .statusCode(200);
+
+        given(ctx.getSpec())
+                .when()
+                    .delete("/pet/" + newPetId)
+                .then()
+                    .statusCode(200);
+
+        given(ctx.getSpec())
+                .when()
+                    .delete("/pet/" + newPetId)
+                .then()
+                    .statusCode(404);
     }
 }
