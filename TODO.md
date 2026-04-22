@@ -1,24 +1,20 @@
 # Project 2 — Java / RestAssured / JUnit 5 TODO Tracker
-_Last updated: Session 7_
+_Last updated: Session 8 (complete)_
 
 ---
 
-## 🔴 In Progress (Session 7)
+## 🔴 In Progress (Session 8)
 
-- [ ] Wire `pet-schema.json` into `shouldReturn200WhenGettingExistingPet` using `matchesJsonSchemaInClasspath`
-- [ ] Walk through what schema validation is actually asserting (field presence, types, enum values)
+_(none — Session 8 scope complete)_
 
 ---
 
 ## 🟡 Up Next
 
-- [ ] Add remaining CRUD tests:
-    - [ ] PUT to update a pet's status
-    - [ ] DELETE pet
-    - [ ] Assert 404 after deletion
-- [ ] Build the chained end-to-end flow test: POST → GET → PUT → GET again → DELETE → assert 404
-- [ ] Add cleanup to `shouldReturn200WhenCreatingNewPet` — currently leaks the pet it creates (known gap from Session 6)
-- [ ] Extract `"skipSetup"` magic string to a constant: `static final String SKIP_SETUP = "skipSetup"`
+- [ ] Allure annotations — add `@Step`, `@Description`, `@Severity` to existing tests to make the report portfolio-worthy
+- [ ] `@ParameterizedTest` — status enum coverage (`available`, `pending`, `sold`) using `@ValueSource` or `@CsvSource`
+- [ ] `/pet/findByStatus` query param tests — exercises list responses (`hasItem`, `everyItem` matchers)
+- [ ] RestAssured JsonPath nested assertions — e.g. `.body("category.name", equalTo("dogs"))` for interview coverage
 
 ---
 
@@ -31,13 +27,23 @@ _Last updated: Session 7_
 - [x] **Session 6:** `.gitignore` updated to exclude `allure-results/` and `allure-report/`
 - [x] **Session 6:** GET existing pet test passing against PetStore sandbox
 - [x] **Session 6:** POST new pet test passing
+- [x] **Session 7:** Schema validation test — `matchesJsonSchemaInClasspath` wired to `pet-schema.json`
+- [x] **Session 7:** Field-level assertion test — `.extract().as(Pet.class)` with Hamcrest on `id`, `name`, `status`
+- [x] **Session 7:** Negative GET test — 404 on nonexistent pet ID; `@Tag(SKIP_SETUP)` skips lifecycle
+- [x] **Session 7:** PUT update test — asserts both `name` and `status` fields on response
+- [x] **Session 7:** Allure wired end-to-end — version downgraded to 2.25.0, `allure.properties` committed, `allure-bom` added, `.allure/` gitignored
+- [x] **Session 7:** `SKIP_SETUP` extracted to `static final String` constant
+- [x] **Session 7:** `shouldReturn200WhenPostingNewPet` — cleanup DELETE added in try/catch
+- [x] **Session 8:** DELETE test — `shouldReturn404AfterDeletingPet` — POST → DELETE → GET asserts 404
+- [x] **Session 8:** `TestData` constants class — extracted `PET_NAME`, `PET_STATUS_*`, `PET_PHOTO_URL*` from inline string literals
+- [x] **Session 8:** End-to-end lifecycle test — `shouldCompleteFullPetLifecycle` — POST → GET → PUT → GET → DELETE → GET 404, with field/schema assertions at each step and `try/finally` cleanup
 
 ---
 
-## 🔵 Post-Project 2 Backloggit 
+## 🔵 Post-Project 2 Backlog
 
 - [ ] **Cucumber branch** — port 2–3 tests to Gherkin + step definitions
-    - Goals: Cucumber interview coverage, git branching practice, before/after portfolio comparison
+  - Goals: Cucumber interview coverage, git branching practice, before/after portfolio comparison
 - [ ] **CI pipeline** — add GitHub Actions workflow to run `mvn test` on push
 - [ ] **Allure reporting** — confirm report generates cleanly, add to README
 - [ ] **README** — document project structure, how to run, stack decisions
@@ -48,6 +54,6 @@ _Last updated: Session 7_
 
 | Item | Notes |
 |------|-------|
-| `shouldReturn200WhenCreatingNewPet` — no cleanup | Creates a pet with `newPetId`, never deletes it. Needs a scoped `@AfterEach` or manual delete at end of test. |
-| `"skipSetup"` magic string | Typo is a silent failure. Extract to `static final String SKIP_SETUP`. |
-| `@AfterEach` deletes even if `@BeforeEach` was skipped | Harmless on PetStore sandbox (DELETE of nonexistent ID returns 404 or 200), but not logically clean. |
+| `@AfterEach` deletes even if `@BeforeEach` was skipped | Harmless on PetStore sandbox (DELETE of nonexistent ID returns 404), but not logically clean. Low priority. |
+| PetStore sandbox doesn't enforce its own contract | Accepts malformed payloads, returns 200. Schema validation tests reflect your framework's rigor, not the server's. Worth noting in README. |
+| Random ID collision risk | `Math.random() * 1_000_000_000` reduces but doesn't eliminate collision with other sandbox users. Acceptable for portfolio; production would use a dedicated environment. |
