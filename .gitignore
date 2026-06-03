@@ -4,10 +4,7 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -44,3 +41,6 @@ allure-report/
 
 ### Secrets ###
 src/test/resources/config.properties
+
+### Local dev notes ###
+TODO.md
